@@ -4,3 +4,8 @@
 *.o
 *.prof
 *.ps
+
+Main
+Network
+config
+miner.py
