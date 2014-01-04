@@ -19,17 +19,15 @@ import qualified Data.ByteString as BS
  -    (e.g. ['f', 'f'] --> [255]
  -}
 encode :: BS.ByteString -> BS.ByteString
-encode = go BS.empty
-    where go acc bs 
-            -- reached the end
-            | BS.null bs = acc
-            -- if only one could be split away, string had odd length
-            | null b     = error "Odd length string"
-            -- all fine, append new element to acc
-            | otherwise  = go (acc `BS.snoc` new) t
-                where (a:b, t) = first BS.unpack (BS.splitAt 2 bs)
-                      new      = high (hexToDigit a) .|. hexToDigit (head b)
-                      high x   = shiftL (fromIntegral x) 4
+encode = BS.pack . go . BS.unpack
+    where go [] = []
+          go (a:b:xs) = combine a b : go xs
+
+{- Takes two 4 bit values and puts them into one 8 bit value
+ -   (e.g. 0010 -> 1100 --> 00101100)
+ -}
+combine :: Word8 -> Word8 -> Word8
+combine h l = shiftL (hexToDigit h) 4 .|. hexToDigit l
 
 {- converts an index in the asci table to its numeric value
  -  (e.g. 'f' -> 15)

@@ -44,10 +44,10 @@ auth :: String
 auth = "Basic " ++ Char8.unpack (Base64.encode "rethab.worker1:MDFgJzeo")
 
 scantime :: Int
-scantime = 60
+scantime = 30
 
 defaultMaxNonce :: Nonce
-defaultMaxNonce = 100000
+defaultMaxNonce = 250000
 
 type OBJID = Integer
 
@@ -101,7 +101,7 @@ mine maxNonce = do (target, dat) <- getWork
                        maxNonce' = nextMaxNonce nhashes time 
                    printStats time nhashes (isJust mbnonce)
                    forM_ mbnonce (submitWork dat)
-                   --mine maxNonce'
+                   mine maxNonce'
     where nextMaxNonce nhashes time =
             (nhashes * fromIntegral scantime) `div` fromIntegral time
 
