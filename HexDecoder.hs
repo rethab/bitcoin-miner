@@ -6,11 +6,10 @@ module HexDecoder ( bsToInt
                   , unpack 
                   ) where
 
-import Control.Arrow (first)
-import Data.Bits     ((.|.), (.&.), shiftL, shiftR)
-import Data.Char     (ord)
-import Data.Maybe    (fromJust)
-import Data.Word     (Word8)
+import Data.Bits  ( (.|.), (.&.), shiftL, shiftR )
+import Data.Char  ( ord )
+import Data.Maybe ( fromJust )
+import Data.Word  ( Word8 )
 
 import qualified Data.ByteString as BS
 
