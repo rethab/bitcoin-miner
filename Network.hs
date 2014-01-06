@@ -35,7 +35,6 @@ import qualified Data.ByteString.Char8  as Char8
 import qualified HexDecoder             as Decoder
 
 import Miner      ( Data, Nonce, NonceBin, Target, work )
-import HexDecoder ( bsToInt )
 
 host :: String
 host = "http://api.bitcoin.cz:8332"

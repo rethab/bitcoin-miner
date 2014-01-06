@@ -2,23 +2,17 @@
 
 module Main where
 
-import HexDecoder           (bsToInt)
+import HexDecoder    (separate)
 import Miner
-import Control.Monad        (liftM2)
-import Data.Char            (ord)
-import Test.HUnit
+import Data.Char     (ord)
+import Data.Maybe    (fromJust)
+
 import Test.QuickCheck.All
 import Test.QuickCheck
 
 import qualified Data.ByteString as BS
 
 main = $quickCheckAll
-
-instance Arbitrary BS.ByteString where
-    arbitrary = BS.pack `fmap` evenLengthList (elements hexOrds)
-        where hexOrds = Prelude.map (fromIntegral . ord) hexChars
-              hexChars = "0123456789abcdef"
-              evenLengthList = flip suchThat (even . length) . listOf
 
 {- Pair of ByteStrings with equal length. Compact notation -}
 newtype EqLenBSPair = EqLenBSPair (BS.ByteString, BS.ByteString)
@@ -38,3 +32,18 @@ datastr = "000000023aae877d5e1f94b9d9b28aef9b524e2fb41d7c04cc0b59ec0000000100000
 prop_smaller_eq_int_smaller (EqLenBSPair (bs1,bs2)) =
     not (BS.null bs1) && not (BS.null bs2) ==>
         (bs1 `smaller` bs2) == (bsToInt bs1 < bsToInt bs2)
+
+{- Converts the compact representation of a hex number
+ - into its numeric representation.
+ -    (e.g. [255] -> 255
+ -}
+bsToInt :: BS.ByteString -> Integer
+bsToInt = go 0 0 . BS.reverse
+    where go pow acc bs
+            | BS.null bs = acc
+            | otherwise  = go (pow+2) new t
+                where (h, t)      = fromJust (BS.uncons bs)
+                      new         = toHex (separate h)
+                      toHex [a,b] = (fromIntegral b) * 16 ^ pow +
+                                    (fromIntegral a) * 16 ^ (pow+1) + 
+                                    acc

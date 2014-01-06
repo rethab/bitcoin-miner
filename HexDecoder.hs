@@ -1,9 +1,8 @@
-module HexDecoder ( bsToInt
-                  , decode
+module HexDecoder ( decode
                   , digitToHex
                   , encode
                   , hexToDigit
-                  , unpack 
+                  , separate
                   ) where
 
 import Data.Bits  ( (.|.), (.&.), shiftL, shiftR )
@@ -62,23 +61,7 @@ decode = go BS.empty
             | BS.null bs = acc
             | otherwise  = go (acc `BS.append` unHex h) t
                 where (h, t) = fromJust $ BS.uncons bs
-                      unHex = BS.pack . map digitToHex . unpack
+                      unHex = BS.pack . map digitToHex . separate
 
-unpack :: Word8 -> [Word8]
-unpack w = [ shiftR w 4 , w .&. 0xF ]
-
-{- Converts the compact representation of a hex number
- - into its numeric representation.
- -    (e.g. [255] -> 255
- -}
-bsToInt :: BS.ByteString -> Integer
-bsToInt = go 0 0 . BS.reverse
-    where go pow acc bs
-            | BS.null bs = acc
-            | otherwise  = go (pow+2) new t
-                where (h, t)      = fromJust (BS.uncons bs)
-                      new         = toHex (unpack h)
-                      toHex [a,b] = (fromIntegral b) * 16 ^ pow +
-                                    (fromIntegral a) * 16 ^ (pow+1) + 
-                                    acc
-
+separate :: Word8 -> [Word8]
+separate w = [ shiftR w 4 , w .&. 0xF ]
