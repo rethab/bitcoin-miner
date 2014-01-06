@@ -44,7 +44,7 @@ auth :: String
 auth = "Basic " ++ Char8.unpack (Base64.encode "rethab.worker1:MDFgJzeo")
 
 scantime :: Int
-scantime = 30
+scantime = 15
 
 defaultMaxNonce :: Nonce
 defaultMaxNonce = 250000
@@ -109,8 +109,7 @@ getWork :: IO (Target, Data)
 getWork = do eres <- simpleHTTP (req 1)
              let bs = either (error . show) rspBody eres
              let res = respResult (fromJust . decode . fromStrict $ bs)
-             return (intTarget res, resData res)
-    where intTarget = targetToInt . resTarget
+             return (normalize . resTarget $ res, resData res)
 
 submitWork :: Data -> NonceBin -> IO ()
 submitWork = error "submitwork"
@@ -123,8 +122,8 @@ printStats time nhashes success =
        putStrLn ("Success: " ++ show success)
     where khashes = (fromIntegral nhashes `div` 1000) `div` time
 
-targetToInt :: BS.ByteString -> Integer
-targetToInt = bsToInt . BS.reverse . Decoder.encode
+normalize :: BS.ByteString -> BS.ByteString
+normalize = BS.reverse . Decoder.encode
           
 req :: OBJID -> Request BS.ByteString
 req objid = Request uri POST headers body
