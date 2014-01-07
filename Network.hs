@@ -30,17 +30,13 @@ import System.Time          ( diffClockTimes
                             , tdSec )
 
 import qualified Data.ByteString        as BS
-import qualified Data.ByteString.Base64 as Base64
-import qualified Data.ByteString.Char8  as Char8
 import qualified HexDecoder             as Decoder
+import qualified Credentials            as Cred
 
 import Miner      ( Data, Nonce, NonceBin, Target, work )
 
 host :: String
 host = "http://api.bitcoin.cz:8332"
-
-auth :: String
-auth = "Basic " ++ Char8.unpack (Base64.encode "rethab.worker1:MDFgJzeo")
 
 scantime :: Int
 scantime = 15
@@ -130,6 +126,6 @@ req objid = Request uri POST headers body
           headers = [ Header HdrContentType "application/json"
                     , Header HdrContentLength (show $ BS.length body)
                     , Header HdrConnection ""
-                    , Header HdrAuthorization auth
+                    , Header HdrAuthorization Cred.auth
                     ]
           body = toStrict . encode $ BTCRequest "1.1" "getwork" objid
